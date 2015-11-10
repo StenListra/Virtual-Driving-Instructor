@@ -165,7 +165,7 @@ public class LessonActivity extends AppCompatActivity
     {
         for (Size size : choices)
         {
-            if (size.getWidth() == size.getHeight() * 4 / 3 && size.getWidth() <= 1080) {
+            if (size.getWidth() <= 1080) {
                 return size;
             }
         }
@@ -263,7 +263,8 @@ public class LessonActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item)
     {
         int id = item.getItemId();
-        if (id == android.R.id.home) {
+        if (id == android.R.id.home)
+        {
             // This ID represents the Home or Up button.
             NavUtils.navigateUpFromSameTask(this);
             return true;
@@ -485,7 +486,7 @@ public class LessonActivity extends AppCompatActivity
     private void configureTransform(int viewWidth, int viewHeight)
     {
         Activity activity = this;
-        if (null == mContentView || null == mPreviewSize || null == activity)
+        if (null == mContentView || null == mPreviewSize)
         {
             return;
         }
@@ -532,7 +533,7 @@ public class LessonActivity extends AppCompatActivity
 
     private File getVideoFile(Context context)
     {
-        return new File(context.getExternalFilesDir(null), "video.mp4");
+        return new File(this.getFilesDir() + "/", "video.mp4");
     }
 
     private void startRecordingVideo()
@@ -563,7 +564,7 @@ public class LessonActivity extends AppCompatActivity
         if (null != activity)
         {
             Toast.makeText(activity, "Video saved: " + getVideoFile(activity),
-                    Toast.LENGTH_SHORT).show();
+                    Toast.LENGTH_LONG).show();
         }
         startPreview();
     }
@@ -608,7 +609,6 @@ public class LessonActivity extends AppCompatActivity
                     })
                     .create();
         }
-
     }
 
     private void toggle()
