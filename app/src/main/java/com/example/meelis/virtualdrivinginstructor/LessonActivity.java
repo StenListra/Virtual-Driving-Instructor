@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Matrix;
 import android.graphics.RectF;
@@ -19,6 +20,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
@@ -69,7 +71,6 @@ public class LessonActivity extends AppCompatActivity
      */
     private static final int UI_ANIMATION_DELAY = 300;
 
-    private static final String FRAGMENT_DIALOG = "dialog";
 
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
 
@@ -84,7 +85,6 @@ public class LessonActivity extends AppCompatActivity
     private Button mStartButton;
     private CameraDevice mCameraDevice;
     private CameraCaptureSession mSession;
-    private View mControlsView;
     private Size mPreviewSize;
     private Size mVideoSize;
     private CaptureRequest.Builder mCaptureRequest;
@@ -93,7 +93,6 @@ public class LessonActivity extends AppCompatActivity
     private HandlerThread mBackgroundThread;
     private Semaphore mCameraLock = new Semaphore(1);
     private boolean mIsRecording;
-    private boolean mVisible;
 
     private TextureView.SurfaceTextureListener mSurfaceTextureListener
             = new TextureView.SurfaceTextureListener()
@@ -176,13 +175,12 @@ public class LessonActivity extends AppCompatActivity
     private static Size chooseOptimalSize(Size[] choices, int width, int height, Size aspectRatio)
     {
         // Collect the supported resolutions that are at least as big as the preview Surface
-        List<Size> bigEnough = new ArrayList<Size>();
+        List<Size> bigEnough = new ArrayList<>();
         int w = aspectRatio.getWidth();
         int h = aspectRatio.getHeight();
         for (Size option : choices)
         {
-            if (option.getHeight() == option.getWidth() * h / w &&
-                    option.getWidth() >= width && option.getHeight() >= height)
+            if (option.getWidth() >= width && option.getHeight() >= height)
             {
                 bigEnough.add(option);
             }
@@ -211,26 +209,11 @@ public class LessonActivity extends AppCompatActivity
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        mVisible = true;
-        mControlsView = findViewById(R.id.fullscreen_content_controls);
+        delayedHide(0);
         mContentView = (AutoFitTextureView)findViewById(R.id.fullscreen_content);
         mStartButton = (Button)findViewById(R.id.dummy_button);
 
 
-        // Set up the user interaction to manually show or hide the system UI.
-        mContentView.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                toggle();
-            }
-        });
-
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-        mStartButton.setOnTouchListener(mDelayHideTouchListener);
         mStartButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -246,17 +229,6 @@ public class LessonActivity extends AppCompatActivity
                 }
             }
         });
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState)
-    {
-        super.onPostCreate(savedInstanceState);
-
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-        delayedHide(100);
     }
 
     @Override
@@ -293,24 +265,6 @@ public class LessonActivity extends AppCompatActivity
         stopBackgroundThread();
         super.onPause();
     }
-
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener()
-    {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent)
-        {
-            if (AUTO_HIDE)
-            {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
 
     private void startBackgroundThread()
     {
@@ -355,7 +309,7 @@ public class LessonActivity extends AppCompatActivity
                     .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             mVideoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder.class));
             mPreviewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class),
-                    width, height, mVideoSize);
+                    height, width, mVideoSize);
 
             int orientation = getResources().getConfiguration().orientation;
             if (orientation == Configuration.ORIENTATION_LANDSCAPE)
@@ -421,7 +375,7 @@ public class LessonActivity extends AppCompatActivity
             assert texture != null;
             texture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
             mCaptureRequest = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
-            List<Surface> surfaces = new ArrayList<Surface>();
+            List<Surface> surfaces = new ArrayList<>();
 
             Surface previewSurface = new Surface(texture);
             surfaces.add(previewSurface);
@@ -519,7 +473,7 @@ public class LessonActivity extends AppCompatActivity
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        mRecorder.setOutputFile(getVideoFile(activity).getAbsolutePath());
+        mRecorder.setOutputFile(getVideoFile().getAbsolutePath());
         mRecorder.setVideoEncodingBitRate(10000000);
         mRecorder.setVideoFrameRate(30);
         mRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
@@ -531,9 +485,9 @@ public class LessonActivity extends AppCompatActivity
         mRecorder.prepare();
     }
 
-    private File getVideoFile(Context context)
+    private File getVideoFile()
     {
-        return new File(this.getFilesDir() + "/", "video.mp4");
+        return new File(Environment.getExternalStorageDirectory() + "/", "video.mp4");
     }
 
     private void startRecordingVideo()
@@ -558,15 +512,18 @@ public class LessonActivity extends AppCompatActivity
         mIsRecording = false;
         mStartButton.setText("Record");
         // Stop recording
-        mRecorder.stop();
-        mRecorder.reset();
-        Activity activity = this;
-        if (null != activity)
-        {
-            Toast.makeText(activity, "Video saved: " + getVideoFile(activity),
-                    Toast.LENGTH_LONG).show();
+        try {
+            // Abort all pending captures.
+            mSession.abortCaptures();
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
         }
-        startPreview();
+
+        mRecorder.stop();
+        Toast.makeText(this, "Video saved: " + getVideoFile(),
+                    Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(this, LessonEndActivity.class);
+        startActivity(intent);
     }
 
     static class CompareSizesByArea implements Comparator<Size>
@@ -580,49 +537,6 @@ public class LessonActivity extends AppCompatActivity
         }
     }
 
-    public static class ErrorDialog extends DialogFragment
-    {
-        private static final String ARG_MESSAGE = "message";
-
-        public static ErrorDialog newInstance(String message)
-        {
-            ErrorDialog dialog = new ErrorDialog();
-            Bundle args = new Bundle();
-            args.putString(ARG_MESSAGE, message);
-            dialog.setArguments(args);
-            return dialog;
-        }
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState)
-        {
-            final Activity activity = getActivity();
-            return new AlertDialog.Builder(activity)
-                    .setMessage(getArguments().getString(ARG_MESSAGE))
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i)
-                        {
-                            activity.finish();
-                        }
-                    })
-                    .create();
-        }
-    }
-
-    private void toggle()
-    {
-        if (mVisible)
-        {
-            hide();
-        }
-        else
-        {
-            show();
-        }
-    }
-
     private void hide()
     {
         // Hide UI first
@@ -631,11 +545,8 @@ public class LessonActivity extends AppCompatActivity
         {
             actionBar.hide();
         }
-        mControlsView.setVisibility(View.GONE);
-        mVisible = false;
 
         // Schedule a runnable to remove the status and navigation bar after a delay
-        mHideHandler.removeCallbacks(mShowPart2Runnable);
         mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
     }
 
@@ -653,37 +564,7 @@ public class LessonActivity extends AppCompatActivity
             mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
                     | View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-        }
-    };
-
-    @SuppressLint("InlinedApi")
-    private void show()
-    {
-        // Show the system bar
-        mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-        mVisible = true;
-
-        // Schedule a runnable to display UI elements after a delay
-        mHideHandler.removeCallbacks(mHidePart2Runnable);
-        mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
-    }
-
-    private final Runnable mShowPart2Runnable = new Runnable()
-    {
-        @Override
-        public void run()
-        {
-            // Delayed display of UI elements
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null)
-            {
-                actionBar.show();
-            }
-            mControlsView.setVisibility(View.VISIBLE);
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         }
     };
 
