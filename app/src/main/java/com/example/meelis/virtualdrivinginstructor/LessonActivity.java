@@ -47,24 +47,8 @@ import android.view.MotionEvent;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- */
 public class LessonActivity extends AppCompatActivity
 {
-    /**
-     * Whether or not the system UI should be auto-hidden after
-     * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
-     */
-    private static final boolean AUTO_HIDE = true;
-
-    /**
-     * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
-     * user interaction before hiding the system UI.
-     */
-    private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
-
     /**
      * Some older devices needs a small delay between UI widget updates
      * and a change of the status and navigation bar.
@@ -82,9 +66,11 @@ public class LessonActivity extends AppCompatActivity
     }
 
     private AutoFitTextureView mContentView;
+    private AccelerometerTextView mAccelerometerView;
     private Button mStartButton;
     private CameraDevice mCameraDevice;
     private CameraCaptureSession mSession;
+    private LocationHandler mLocationHandler;
     private Size mPreviewSize;
     private Size mVideoSize;
     private CaptureRequest.Builder mCaptureRequest;
@@ -93,6 +79,7 @@ public class LessonActivity extends AppCompatActivity
     private HandlerThread mBackgroundThread;
     private Semaphore mCameraLock = new Semaphore(1);
     private boolean mIsRecording;
+    private boolean mInRecordingFlow;
 
     private TextureView.SurfaceTextureListener mSurfaceTextureListener
             = new TextureView.SurfaceTextureListener()
@@ -212,6 +199,8 @@ public class LessonActivity extends AppCompatActivity
         delayedHide(0);
         mContentView = (AutoFitTextureView)findViewById(R.id.fullscreen_content);
         mStartButton = (Button)findViewById(R.id.dummy_button);
+        mAccelerometerView = (AccelerometerTextView)findViewById(R.id.textView2);
+        mLocationHandler = new LocationHandler(this);
 
 
         mStartButton.setOnClickListener(new View.OnClickListener()
@@ -248,6 +237,10 @@ public class LessonActivity extends AppCompatActivity
     public void onResume()
     {
         super.onResume();
+        if (mInRecordingFlow = true) {
+            mAccelerometerView.registerListener();
+            mLocationHandler.registerListener();
+        }
         startBackgroundThread();
         if (mContentView.isAvailable())
         {
@@ -263,6 +256,10 @@ public class LessonActivity extends AppCompatActivity
     {
         closeCamera();
         stopBackgroundThread();
+        if (mInRecordingFlow = true) {
+            mAccelerometerView.unRegisterListener();
+            mLocationHandler.unRegisterListener();
+        }
         super.onPause();
     }
 
@@ -500,6 +497,9 @@ public class LessonActivity extends AppCompatActivity
 
             // Start recording
             mRecorder.start();
+            mAccelerometerView.registerListener();
+            mLocationHandler.registerListener();
+            mInRecordingFlow = true;
         } catch (IllegalStateException e)
         {
             e.printStackTrace();
@@ -522,6 +522,13 @@ public class LessonActivity extends AppCompatActivity
         mRecorder.stop();
         Toast.makeText(this, "Video saved: " + getVideoFile(),
                     Toast.LENGTH_LONG).show();
+        endFlow();
+    }
+
+    private void endFlow(){
+        mInRecordingFlow = false;
+        mAccelerometerView.unRegisterListener();
+        mLocationHandler.unRegisterListener();
         Intent intent = new Intent(this, LessonEndActivity.class);
         startActivity(intent);
     }
