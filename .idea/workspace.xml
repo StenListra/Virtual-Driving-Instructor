@@ -36,18 +36,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="LessonActivity.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/meelis/virtualdrivinginstructor/LessonActivity.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-7.724138">
-              <caret line="253" column="13" selection-start-line="253" selection-start-column="13" selection-end-line="253" selection-end-column="13" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="LocationHandler.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/meelis/virtualdrivinginstructor/LocationHandler.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -60,11 +48,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AccelerometerTextView.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="AccelerometerTextView.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/meelis/virtualdrivinginstructor/AccelerometerTextView.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.6690519">
-              <caret line="78" column="5" selection-start-line="78" selection-start-column="5" selection-end-line="78" selection-end-column="5" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="75" column="0" selection-start-line="75" selection-start-column="0" selection-end-line="75" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -102,6 +90,21 @@
               <caret line="25" column="30" selection-start-line="25" selection-start-column="30" selection-end-line="25" selection-end-column="30" />
               <folding>
                 <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="LessonActivity.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/meelis/virtualdrivinginstructor/LessonActivity.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.42264152">
+              <caret line="39" column="32" selection-start-line="39" selection-start-column="32" selection-end-line="39" selection-end-column="32" />
+              <folding>
+                <element signature="e#3430#3431#0" expanded="true" />
+                <element signature="e#3465#3466#0" expanded="true" />
+                <element signature="e#6414#6765#0" expanded="true" />
+                <element signature="e#6764#6765#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -1438,10 +1441,10 @@
         <option value="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/example/meelis/virtualdrivinginstructor/FileHandler.java" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout/activity_lesson.xml" />
-        <option value="$PROJECT_DIR$/app/src/main/java/com/example/meelis/virtualdrivinginstructor/LessonActivity.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/example/meelis/virtualdrivinginstructor/FileUtility.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/example/meelis/virtualdrivinginstructor/LocationHandler.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/example/meelis/virtualdrivinginstructor/AccelerometerTextView.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/com/example/meelis/virtualdrivinginstructor/LessonActivity.java" />
       </list>
     </option>
   </component>
@@ -1785,7 +1788,10 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="231" column="44" selection-start-line="231" selection-start-column="44" selection-end-line="231" selection-end-column="44" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#3430#3431#0" expanded="true" />
+            <element signature="e#3465#3466#0" expanded="true" />
+            <element signature="e#6414#6765#0" expanded="true" />
+            <element signature="e#6764#6765#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1844,7 +1850,10 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="516" column="48" selection-start-line="516" selection-start-column="48" selection-end-line="516" selection-end-column="48" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#3430#3431#0" expanded="true" />
+            <element signature="e#3465#3466#0" expanded="true" />
+            <element signature="e#6414#6765#0" expanded="true" />
+            <element signature="e#6764#6765#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1875,7 +1884,10 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="516" column="48" selection-start-line="516" selection-start-column="48" selection-end-line="516" selection-end-column="48" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#3430#3431#0" expanded="true" />
+            <element signature="e#3465#3466#0" expanded="true" />
+            <element signature="e#6414#6765#0" expanded="true" />
+            <element signature="e#6764#6765#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1916,20 +1928,21 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/meelis/virtualdrivinginstructor/LessonActivity.java">
+    <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_lesson.xml">
+      <provider editor-type-id="android-designer">
+        <state />
+      </provider>
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-7.724138">
-          <caret line="253" column="13" selection-start-line="253" selection-start-column="13" selection-end-line="253" selection-end-column="13" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="-17.586206">
+          <caret line="30" column="42" selection-start-line="30" selection-start-column="42" selection-end-line="30" selection-end-column="42" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/meelis/virtualdrivinginstructor/LocationHandler.java">
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/meelis/virtualdrivinginstructor/AccelerometerTextView.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="20" column="28" selection-start-line="20" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
+          <caret line="75" column="0" selection-start-line="75" selection-start-column="0" selection-end-line="75" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1946,23 +1959,25 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_lesson.xml">
-      <provider editor-type-id="android-designer">
-        <state />
-      </provider>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/meelis/virtualdrivinginstructor/LocationHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-17.586206">
-          <caret line="30" column="42" selection-start-line="30" selection-start-column="42" selection-end-line="30" selection-end-column="42" />
-          <folding />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="20" column="28" selection-start-line="20" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/meelis/virtualdrivinginstructor/AccelerometerTextView.java">
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/meelis/virtualdrivinginstructor/LessonActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6690519">
-          <caret line="78" column="5" selection-start-line="78" selection-start-column="5" selection-end-line="78" selection-end-column="5" />
+        <state vertical-scroll-proportion="0.42264152">
+          <caret line="39" column="32" selection-start-line="39" selection-start-column="32" selection-end-line="39" selection-end-column="32" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#3430#3431#0" expanded="true" />
+            <element signature="e#3465#3466#0" expanded="true" />
+            <element signature="e#6414#6765#0" expanded="true" />
+            <element signature="e#6764#6765#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -1,10 +1,6 @@
 package com.example.meelis.virtualdrivinginstructor;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Matrix;
@@ -43,7 +39,6 @@ import java.util.concurrent.TimeUnit;
 import android.annotation.SuppressLint;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MotionEvent;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 
@@ -79,7 +74,7 @@ public class LessonActivity extends AppCompatActivity
     private HandlerThread mBackgroundThread;
     private Semaphore mCameraLock = new Semaphore(1);
     private boolean mIsRecording;
-    private boolean mInRecordingFlow;
+    private boolean mInRecordingFlow = false;
 
     private TextureView.SurfaceTextureListener mSurfaceTextureListener
             = new TextureView.SurfaceTextureListener()
@@ -140,10 +135,7 @@ public class LessonActivity extends AppCompatActivity
             cameraDevice.close();
             mCameraDevice = null;
             Activity activity = LessonActivity.this;
-            if (null != activity)
-            {
-                activity.finish();
-            }
+            activity.finish();
         }
     };
 
@@ -237,7 +229,7 @@ public class LessonActivity extends AppCompatActivity
     public void onResume()
     {
         super.onResume();
-        if (mInRecordingFlow = true) {
+        if (mInRecordingFlow) {
             mAccelerometerView.registerListener();
             mLocationHandler.registerListener();
         }
@@ -256,7 +248,7 @@ public class LessonActivity extends AppCompatActivity
     {
         closeCamera();
         stopBackgroundThread();
-        if (mInRecordingFlow = true) {
+        if (mInRecordingFlow) {
             mAccelerometerView.unRegisterListener();
             mLocationHandler.unRegisterListener();
         }
@@ -287,7 +279,7 @@ public class LessonActivity extends AppCompatActivity
     private void openCamera(int width, int height)
     {
         final Activity activity = this;
-        if (null == activity || activity.isFinishing())
+        if (activity.isFinishing())
         {
             return;
         }
@@ -306,7 +298,7 @@ public class LessonActivity extends AppCompatActivity
                     .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             mVideoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder.class));
             mPreviewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class),
-                    height, width, mVideoSize);
+                    width, height, mVideoSize);
 
             int orientation = getResources().getConfiguration().orientation;
             if (orientation == Configuration.ORIENTATION_LANDSCAPE)
@@ -396,16 +388,10 @@ public class LessonActivity extends AppCompatActivity
                 public void onConfigureFailed(CameraCaptureSession cameraCaptureSession)
                 {
                     Activity activity = LessonActivity.this;
-                    if (null != activity)
-                    {
-                        Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show();
-                    }
+                    Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show();
                 }
             }, mBackgroundHandler);
-        } catch (CameraAccessException e)
-        {
-            e.printStackTrace();
-        } catch (IOException e)
+        } catch (Exception e)
         {
             e.printStackTrace();
         }
@@ -463,10 +449,6 @@ public class LessonActivity extends AppCompatActivity
     private void setUpMediaRecorder() throws IOException
     {
         final Activity activity = this;
-        if (null == activity)
-        {
-            return;
-        }
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
