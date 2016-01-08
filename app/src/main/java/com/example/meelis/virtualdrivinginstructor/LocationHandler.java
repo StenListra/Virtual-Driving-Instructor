@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
+import java.security.Provider;
 
 /**
  * Created by SLIST on 23-Nov-15.
@@ -18,11 +19,11 @@ public class LocationHandler implements android.location.LocationListener {
     final private long mStartTime = System.currentTimeMillis();
     private File mDataFile;
     private FileUtility mFileUtility;
-    private String mFileLocation = "/locData.txt";
 
     public LocationHandler(Context context){
-        mDataFile = new File(Environment.getExternalStorageDirectory() + mFileLocation);
-        mFileUtility = new FileUtility(mDataFile, mFileLocation);
+        String fileLocation = "/locData.txt";
+        mDataFile = new File(Environment.getExternalStorageDirectory() + fileLocation);
+        mFileUtility = new FileUtility(mDataFile, fileLocation);
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
     }
 
@@ -30,7 +31,9 @@ public class LocationHandler implements android.location.LocationListener {
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
         try{
-            mLocationManager.requestLocationUpdates(mLocationManager.getBestProvider(criteria, true), 100, 0, this);
+            String provider = mLocationManager.getBestProvider(criteria, true);
+            writeLocationToFile(mLocationManager.getLastKnownLocation(provider));
+            mLocationManager.requestLocationUpdates(provider, 0, 0, this);
         }
         catch (SecurityException e){
             Log.e("LocationHandler", "Missing permissions for location updates");
@@ -59,6 +62,10 @@ public class LocationHandler implements android.location.LocationListener {
     }
 
     public void onLocationChanged(Location location){
+        writeLocationToFile(location);
+    }
+
+    private void writeLocationToFile(Location location){
         Double longitude = location.getLongitude();
         Double latitude = location.getLatitude();
         Float speed = location.getSpeed();

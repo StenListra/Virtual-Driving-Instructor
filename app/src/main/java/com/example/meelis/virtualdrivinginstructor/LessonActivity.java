@@ -25,6 +25,7 @@ import android.util.SparseIntArray;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -473,6 +474,7 @@ public class LessonActivity extends AppCompatActivity
     {
         try
         {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             // UI
             mStartButton.setText("Stop");
             mIsRecording = true;
@@ -490,6 +492,7 @@ public class LessonActivity extends AppCompatActivity
 
     private void stopRecordingVideo()
     {
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         // UI
         mIsRecording = false;
         mStartButton.setText("Record");
