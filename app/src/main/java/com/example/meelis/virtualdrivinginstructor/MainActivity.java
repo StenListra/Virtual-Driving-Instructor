@@ -37,7 +37,9 @@ public class MainActivity extends AppCompatActivity
                 requestedPermissions.add(permission);
             }
         }
-        ActivityCompat.requestPermissions(this, requestedPermissions.toArray(new String[requestedPermissions.size()]), 1);
+        if (requestedPermissions.size() > 0) {
+            ActivityCompat.requestPermissions(this, requestedPermissions.toArray(new String[requestedPermissions.size()]), 1);
+        }
     }
 
     public void startNewLesson(View view)

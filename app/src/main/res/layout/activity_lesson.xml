@@ -19,18 +19,21 @@
 
             <Button android:id="@+id/dummy_button" style="?metaButtonBarButtonStyle"
                 android:layout_width="0dp" android:layout_height="wrap_content"
-                android:layout_weight="1" android:text="@string/startRecording" />
+                android:layout_weight="1" android:text="@string/startRecording"
+                android:layout_gravity="bottom" />
 
         </LinearLayout>
 
         <com.example.meelis.virtualdrivinginstructor.AccelerometerTextView
-            android:layout_width="130dp"
-            android:layout_height="130dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/textView2"
             android:layout_gravity="start|top"
             android:textAlignment="center"
             android:orientation="vertical"
-            android:textColor="#ffffff" />
+            android:textColor="#ffffff"
+            android:background="#ff5a595b"
+            android:alpha="0.5" />
 
     </FrameLayout>
 

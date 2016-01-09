@@ -64,6 +64,9 @@ public class AccelerometerTextView extends LinearLayout implements android.hardw
         mTopTextView = (TextView) mRootView.findViewById(R.id.topTextView);
         mMiddleTextView = (TextView) mRootView.findViewById(R.id.midTextView);
         mBottomTextView = (TextView) mRootView.findViewById(R.id.botTextView);
+        mTopTextView.setText(String.format(getResources().getString(R.string.x_0_00), 0.00));
+        mMiddleTextView.setText(String.format(getResources().getString(R.string.y_0_00), 0.00));
+        mBottomTextView.setText(String.format(getResources().getString(R.string.z_0_00), 0.00));
     }
 
     public void registerListener(){
@@ -91,6 +94,9 @@ public class AccelerometerTextView extends LinearLayout implements android.hardw
                 float z = event.values[2] - mCalibrationValues[2];
                 String jsonString = "{\"x\":\"" + x + "\",\"y\":\"" + y + "\",\"z\":\"" + z + "\",\"time\":\"" + (currTime - mStartTime) + "\"}";
                 mFileUtility.writeToFile(jsonString, mDataFile);
+                mTopTextView.setText(String.format(getResources().getString(R.string.x_0_00), x));
+                mMiddleTextView.setText(String.format(getResources().getString(R.string.y_0_00), y));
+                mBottomTextView.setText(String.format(getResources().getString(R.string.z_0_00), z));
             }
         }
     }

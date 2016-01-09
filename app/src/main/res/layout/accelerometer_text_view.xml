@@ -5,25 +5,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
+        android:text="@string/x_0_00"
         android:id="@+id/topTextView"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        android:textColor="#ffffff" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
+        android:text="@string/y_0_00"
         android:id="@+id/midTextView"
         android:layout_gravity="center_horizontal"
-        android:layout_below="@+id/topTextView"/>
+        android:layout_below="@+id/topTextView"
+        android:textColor="#ffffff" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
+        android:text="@string/z_0_00"
         android:id="@+id/botTextView"
         android:layout_gravity="center_horizontal"
-        android:layout_below="@id/midTextView"/>
+        android:layout_below="@id/midTextView"
+        android:textColor="#ffffff" />
 </merge>
