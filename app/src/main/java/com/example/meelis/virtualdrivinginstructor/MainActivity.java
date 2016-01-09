@@ -2,6 +2,7 @@ package com.example.meelis.virtualdrivinginstructor;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity
     private void verifyPermissions(){
         List<String> requestedPermissions = new ArrayList<>();
         for (String permission : mPermissions){
-            if (ActivityCompat.checkSelfPermission(this, permission) == 1);{
+            if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED){
                 requestedPermissions.add(permission);
             }
         }

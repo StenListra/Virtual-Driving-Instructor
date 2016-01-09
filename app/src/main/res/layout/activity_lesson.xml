@@ -29,6 +29,7 @@
             android:id="@+id/textView2"
             android:layout_gravity="start|top"
             android:textAlignment="center"
+            android:orientation="vertical"
             android:textColor="#ffffff" />
 
     </FrameLayout>
