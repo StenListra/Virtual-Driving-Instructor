@@ -9,12 +9,30 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.meelis.virtualdrivinginstructor.LessonEndActivity">
 
+    <fragment
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:name="com.example.meelis.virtualdrivinginstructor.LessonMapFragment"
+        android:id="@+id/mapFragment"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        tools:layout="@layout/map_fragment" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Lesson finished"
-        android:id="@+id/textView"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="169dp" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/distance_0_00_km"
+        android:id="@+id/distanceTextView"
+        android:layout_below="@+id/mapFragment"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/duration_s"
+        android:id="@+id/durationTextView"
+        android:layout_below="@+id/distanceTextView"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>

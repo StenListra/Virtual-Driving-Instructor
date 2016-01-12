@@ -11,4 +11,7 @@
     <string name="y_0_00">Y : %1$.2f</string>
     <string name="x_0_00">X : %1$.2f</string>
     <string name="z_0_00">Z : %1$.2f</string>
+
+    <string name="distance_0_00_km">Distance: %s</string>
+    <string name="duration_s">Duration: %d m</string>
 </resources>

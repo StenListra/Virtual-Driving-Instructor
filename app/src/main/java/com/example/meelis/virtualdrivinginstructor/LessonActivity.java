@@ -14,6 +14,7 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.location.Location;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
@@ -50,8 +51,6 @@ public class LessonActivity extends AppCompatActivity
      * and a change of the status and navigation bar.
      */
     private static final int UI_ANIMATION_DELAY = 300;
-
-
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
 
     static {
@@ -76,6 +75,7 @@ public class LessonActivity extends AppCompatActivity
     private Semaphore mCameraLock = new Semaphore(1);
     private boolean mIsRecording;
     private boolean mInRecordingFlow = false;
+    private long mStartTime, mEndTime;
 
     private TextureView.SurfaceTextureListener mSurfaceTextureListener
             = new TextureView.SurfaceTextureListener()
@@ -472,6 +472,7 @@ public class LessonActivity extends AppCompatActivity
             mIsRecording = true;
 
             // Start recording
+            mStartTime = System.currentTimeMillis();
             mRecorder.start();
             mAccelerometerView.registerListener();
             mLocationHandler.registerListener();
@@ -497,6 +498,7 @@ public class LessonActivity extends AppCompatActivity
         }
 
         mRecorder.stop();
+        mEndTime = System.currentTimeMillis() - mStartTime;
         Toast.makeText(this, "Video saved: " + getVideoFile(),
                     Toast.LENGTH_LONG).show();
         endFlow();
@@ -506,7 +508,10 @@ public class LessonActivity extends AppCompatActivity
         mInRecordingFlow = false;
         mAccelerometerView.unRegisterListener();
         mLocationHandler.unRegisterListener();
+        List<Location> locations = mLocationHandler.mLocations;
         Intent intent = new Intent(this, LessonEndActivity.class);
+        intent.putExtra("LocationList", (ArrayList<Location>) locations);
+        intent.putExtra("Duration", mEndTime);
         startActivity(intent);
     }
 
