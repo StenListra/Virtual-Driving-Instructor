@@ -24,7 +24,6 @@ import java.util.List;
  * Created by SLIST on 10-Jan-16.
  */
 public class LessonMapFragment extends Fragment {
-    private static View mView;
     private static GoogleMap mGoogleMap;
 
     public List<Location> mLocationList;
@@ -32,9 +31,7 @@ public class LessonMapFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mView = inflater.inflate(R.layout.map_fragment, container, false);
-
-        return mView;
+        return inflater.inflate(R.layout.map_fragment, container, false);
     }
 
     public void setUpMap() {

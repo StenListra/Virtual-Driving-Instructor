@@ -2,7 +2,6 @@ package com.example.meelis.virtualdrivinginstructor;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
@@ -20,6 +19,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -43,8 +43,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
-
-import org.json.JSONArray;
 
 public class LessonActivity extends AppCompatActivity
 {
@@ -112,7 +110,7 @@ public class LessonActivity extends AppCompatActivity
     {
 
         @Override
-        public void onOpened(CameraDevice cameraDevice)
+        public void onOpened(@NonNull CameraDevice cameraDevice)
         {
             mCameraDevice = cameraDevice;
             startPreview();
@@ -124,7 +122,7 @@ public class LessonActivity extends AppCompatActivity
         }
 
         @Override
-        public void onDisconnected(CameraDevice cameraDevice)
+        public void onDisconnected(@NonNull CameraDevice cameraDevice)
         {
             mCameraLock.release();
             cameraDevice.close();
@@ -132,7 +130,7 @@ public class LessonActivity extends AppCompatActivity
         }
 
         @Override
-        public void onError(CameraDevice cameraDevice, int error)
+        public void onError(@NonNull CameraDevice cameraDevice, int error)
         {
             mCameraLock.release();
             cameraDevice.close();
@@ -154,12 +152,10 @@ public class LessonActivity extends AppCompatActivity
         return choices[choices.length - 1];
     }
 
-    private static Size chooseOptimalSize(Size[] choices, int width, int height, Size aspectRatio)
+    private static Size chooseOptimalSize(Size[] choices, int width, int height)
     {
         // Collect the supported resolutions that are at least as big as the preview Surface
         List<Size> bigEnough = new ArrayList<>();
-        int w = aspectRatio.getWidth();
-        int h = aspectRatio.getHeight();
         for (Size option : choices)
         {
             if (option.getWidth() >= width && option.getHeight() >= height)
@@ -301,7 +297,7 @@ public class LessonActivity extends AppCompatActivity
                     .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             mVideoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder.class));
             mPreviewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class),
-                    width, height, mVideoSize);
+                    width, height);
 
             configureTransform(width, height);
             mRecorder = new MediaRecorder();
@@ -373,14 +369,14 @@ public class LessonActivity extends AppCompatActivity
             {
 
                 @Override
-                public void onConfigured(CameraCaptureSession cameraCaptureSession)
+                public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession)
                 {
                     mSession = cameraCaptureSession;
                     updatePreview();
                 }
 
                 @Override
-                public void onConfigureFailed(CameraCaptureSession cameraCaptureSession)
+                public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession)
                 {
                     Activity activity = LessonActivity.this;
                     Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show();
@@ -470,7 +466,7 @@ public class LessonActivity extends AppCompatActivity
         {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             // UI
-            mStartButton.setText("Stop");
+            mStartButton.setText(getResources().getString(R.string.stop));
             mIsRecording = true;
 
             // Start recording
@@ -490,7 +486,7 @@ public class LessonActivity extends AppCompatActivity
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         // UI
         mIsRecording = false;
-        mStartButton.setText("Record");
+        mStartButton.setText(getResources().getString(R.string.record));
         // Stop recording
         try {
             // Abort all pending captures.

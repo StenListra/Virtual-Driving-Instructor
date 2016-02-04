@@ -13,7 +13,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
-    private static final int mRequestPermissions = 1;
     private static String[] mPermissions = {
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO,

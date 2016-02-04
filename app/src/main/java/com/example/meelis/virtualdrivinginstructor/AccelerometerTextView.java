@@ -4,20 +4,14 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
-import android.os.Environment;
-import android.text.StaticLayout;
-import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.io.File;
 
 /**
  * Created by SLIST on 18-Nov-15.
@@ -44,11 +38,6 @@ public class AccelerometerTextView extends LinearLayout implements android.hardw
 
     public AccelerometerTextView(Context context, AttributeSet attrs, int defStyleAttr){
         super(context,attrs,defStyleAttr);
-        init(context);
-    }
-
-    public AccelerometerTextView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes){
-        super(context,attrs,defStyleAttr,defStyleRes);
         init(context);
     }
 

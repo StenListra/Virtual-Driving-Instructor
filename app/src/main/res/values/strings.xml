@@ -16,4 +16,6 @@
     <string name="duration_s">Duration: %d m</string>
     <string name="upload_lesson">Upload Lesson</string>
     <string name="upload_progress">%d %%</string>
+    <string name="record">Record</string>
+    <string name="stop">Stop</string>
 </resources>
