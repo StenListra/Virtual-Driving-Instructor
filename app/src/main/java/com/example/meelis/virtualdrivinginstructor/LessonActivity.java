@@ -44,6 +44,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 
+import org.json.JSONArray;
+
 public class LessonActivity extends AppCompatActivity
 {
     /**
@@ -509,9 +511,13 @@ public class LessonActivity extends AppCompatActivity
         mAccelerometerView.unRegisterListener();
         mLocationHandler.unRegisterListener();
         List<Location> locations = mLocationHandler.mLocations;
+        String locationJSON = mLocationHandler.mLocationsJSON.toString();
+        String sensorJSON = mAccelerometerView.mAccelerometerJSON.toString();
         Intent intent = new Intent(this, LessonEndActivity.class);
         intent.putExtra("LocationList", (ArrayList<Location>) locations);
         intent.putExtra("Duration", mEndTime);
+        intent.putExtra("LocationJSON", locationJSON);
+        intent.putExtra("SensorJSON", sensorJSON);
         startActivity(intent);
     }
 

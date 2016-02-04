@@ -21,6 +21,8 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,9 +34,11 @@ public class LessonEndActivity extends AppCompatActivity {
     private LessonMapFragment mMapFragment;
     private TextView mDistanceTextView, mDurationTextView, mTxtPercentage;
     private ProgressBar mProgressBar;
-    private String mFilePath = Environment.getExternalStorageDirectory() + "/video.mp4";
+    private File mVideoFile = new File(Environment.getExternalStorageDirectory() + "/video.mp4");
     private Button mBtnUpload;
-    long mTotalSize = 0;
+    private long mTotalSize = 0;
+    private boolean mSuccessful;
+    private JSONArray mLessonJSON;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +65,16 @@ public class LessonEndActivity extends AppCompatActivity {
         mMapFragment.setUpMap();
 
         mDuration = (long) getIntent().getSerializableExtra("Duration");
+
+        mLessonJSON = new JSONArray();
+        try {
+            JSONArray locationJSON = new JSONArray((String) getIntent().getSerializableExtra("LocationJSON"));
+            JSONArray sensorJSON = new JSONArray((String) getIntent().getSerializableExtra("SensorJSON"));
+            mLessonJSON.put(locationJSON);
+            mLessonJSON.put(sensorJSON);
+        } catch (JSONException e) {
+            Log.e("LessonEndActivity", "Exception when creating JSON array: " + e);
+        }
     }
 
     @Override
@@ -86,14 +100,15 @@ public class LessonEndActivity extends AppCompatActivity {
 
         @Override
         protected void onProgressUpdate(Integer... progress) {
-            // Making progress bar visible
+            // Making progress bar and upload percentage visible
             mProgressBar.setVisibility(View.VISIBLE);
+            mTxtPercentage.setVisibility(View.VISIBLE);
 
             // updating progress bar value
             mProgressBar.setProgress(progress[0]);
 
             // updating percentage value
-            mTxtPercentage.setText(String.valueOf(progress[0]) + "%");
+            mTxtPercentage.setText(String.format(getResources().getString(R.string.upload_progress), progress[0]));
         }
 
         @Override
@@ -118,7 +133,7 @@ public class LessonEndActivity extends AppCompatActivity {
                             }
                         });
 
-                File sourceFile = new File(mFilePath);
+                File sourceFile = mVideoFile;
 
                 // Adding file data to http body
                 entity.addPart("video", new FileBody(sourceFile));
@@ -132,6 +147,7 @@ public class LessonEndActivity extends AppCompatActivity {
 
                 int statusCode = response.getStatusLine().getStatusCode();
                 if (statusCode == 200) {
+                    mSuccessful = true;
                     // Server response
                     responseString = EntityUtils.toString(r_entity);
                 } else {
@@ -148,8 +164,12 @@ public class LessonEndActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            Log.e("LessonEndActivity", "Response from server: " + result);
-
+            if (mSuccessful) {
+                Log.i("LessonEndActivity", "Response from server: " + result);
+            }
+            else{
+                Log.e("LessonEndActivity", "Response from server: " + result);
+            }
             // showing the server response in an alert dialog
             showAlert(result);
 
@@ -163,7 +183,12 @@ public class LessonEndActivity extends AppCompatActivity {
                 .setCancelable(false)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        // do nothing
+                        if (mSuccessful){
+                            mBtnUpload.setVisibility(View.INVISIBLE);
+                            mProgressBar.setVisibility(View.INVISIBLE);
+                            mTxtPercentage.setVisibility(View.INVISIBLE);
+                            mVideoFile.delete();
+                        }
                     }
                 });
         AlertDialog alert = builder.create();

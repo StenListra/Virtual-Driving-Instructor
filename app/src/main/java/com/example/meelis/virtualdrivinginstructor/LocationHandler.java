@@ -10,6 +10,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.Serializable;
 import java.security.Provider;
@@ -23,16 +26,13 @@ public class LocationHandler implements android.location.LocationListener {
     public LocationManager mLocationManager;
     public String mProvider;
     final private long mStartTime = System.currentTimeMillis();
-    private File mDataFile;
-    private FileUtility mFileUtility;
     public List<Location> mLocations;
+    public JSONArray mLocationsJSON;
 
     public LocationHandler(Context context){
-        String fileLocation = "/locData.txt";
-        mDataFile = new File(Environment.getExternalStorageDirectory() + fileLocation);
-        mFileUtility = new FileUtility(mDataFile, fileLocation);
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         mLocations = new ArrayList<>();
+        mLocationsJSON = new JSONArray();
     }
 
     public void registerListener(){
@@ -83,6 +83,12 @@ public class LocationHandler implements android.location.LocationListener {
         Float speed = location.getSpeed();
         Long currTime = System.currentTimeMillis();
         String jsonString = "{\"longitude\":\"" + longitude + "\",\"latitude\":\"" + latitude + "\",\"speed\":\"" + speed + "\",\"time\":\"" + (currTime - mStartTime) + "\"}";
-        mFileUtility.writeToFile(jsonString,mDataFile);
+        try{
+            JSONObject locationData = new JSONObject(jsonString);
+            mLocationsJSON.put(locationData);
+        }
+        catch (Exception e){
+            Log.e("LocationHandler", "Exception when creating JSON object: " + e);
+        }
     }
 }

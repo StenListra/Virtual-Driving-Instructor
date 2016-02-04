@@ -8,10 +8,14 @@ import android.os.Environment;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 
@@ -21,14 +25,12 @@ import java.io.File;
 public class AccelerometerTextView extends LinearLayout implements android.hardware.SensorEventListener2 {
     private SensorManager mManager;
     private Sensor mAccelerometer;
-    private FileUtility mFileUtility;
     private long mLastUpdate = 0;
     final private long mStartTime = System.currentTimeMillis();
-    private File mDataFile;
     private boolean mIsCalibrated = false;
     private float[] mCalibrationValues = new float[3];
-    private View mRootView;
     private TextView mTopTextView, mMiddleTextView, mBottomTextView;
+    public JSONArray mAccelerometerJSON;
 
     public AccelerometerTextView(Context context){
         super(context);
@@ -52,18 +54,16 @@ public class AccelerometerTextView extends LinearLayout implements android.hardw
 
     private void init(Context context){
         setupViews(context);
-        String FileLocation = "/accData.txt";
         mManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mDataFile = new File(Environment.getExternalStorageDirectory() + FileLocation);
-        mFileUtility = new FileUtility(mDataFile, FileLocation);
+        mAccelerometerJSON = new JSONArray();
     }
 
     private void setupViews(Context context){
-        mRootView = inflate(context, R.layout.accelerometer_text_view, this);
-        mTopTextView = (TextView) mRootView.findViewById(R.id.topTextView);
-        mMiddleTextView = (TextView) mRootView.findViewById(R.id.midTextView);
-        mBottomTextView = (TextView) mRootView.findViewById(R.id.botTextView);
+        View rootView = inflate(context, R.layout.accelerometer_text_view, this);
+        mTopTextView = (TextView) rootView.findViewById(R.id.topTextView);
+        mMiddleTextView = (TextView) rootView.findViewById(R.id.midTextView);
+        mBottomTextView = (TextView) rootView.findViewById(R.id.botTextView);
         mTopTextView.setText(String.format(getResources().getString(R.string.x_0_00), 0.00));
         mMiddleTextView.setText(String.format(getResources().getString(R.string.y_0_00), 0.00));
         mBottomTextView.setText(String.format(getResources().getString(R.string.z_0_00), 0.00));
@@ -93,7 +93,13 @@ public class AccelerometerTextView extends LinearLayout implements android.hardw
                 float y = event.values[1] - mCalibrationValues[1];
                 float z = event.values[2] - mCalibrationValues[2];
                 String jsonString = "{\"x\":\"" + x + "\",\"y\":\"" + y + "\",\"z\":\"" + z + "\",\"time\":\"" + (currTime - mStartTime) + "\"}";
-                mFileUtility.writeToFile(jsonString, mDataFile);
+                try{
+                    JSONObject accelerometerData = new JSONObject(jsonString);
+                    mAccelerometerJSON.put(accelerometerData);
+                }
+                catch (Exception e){
+                    Log.e("AccelerometerTextView", "Exception when creating JSON object: " + e);
+                }
                 mTopTextView.setText(String.format(getResources().getString(R.string.x_0_00), x));
                 mMiddleTextView.setText(String.format(getResources().getString(R.string.y_0_00), y));
                 mBottomTextView.setText(String.format(getResources().getString(R.string.z_0_00), z));
