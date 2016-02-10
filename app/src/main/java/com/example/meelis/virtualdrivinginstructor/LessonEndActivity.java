@@ -17,12 +17,15 @@ import android.widget.TextView;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.client.HttpClient;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,7 +41,8 @@ public class LessonEndActivity extends AppCompatActivity {
     private Button mBtnUpload;
     private long mTotalSize = 0;
     private boolean mSuccessful;
-    private JSONArray mLessonJSON;
+    private JSONArray mLessonJSONArray = new JSONArray();
+    private JSONObject mLessonJSON = new JSONObject();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,12 +70,17 @@ public class LessonEndActivity extends AppCompatActivity {
 
         mDuration = (long) getIntent().getSerializableExtra("Duration");
 
-        mLessonJSON = new JSONArray();
         try {
-            JSONArray locationJSON = new JSONArray((String) getIntent().getSerializableExtra("LocationJSON"));
-            JSONArray sensorJSON = new JSONArray((String) getIntent().getSerializableExtra("SensorJSON"));
-            mLessonJSON.put(locationJSON);
-            mLessonJSON.put(sensorJSON);
+            JSONArray locationJSONArray = new JSONArray((String) getIntent().getSerializableExtra("LocationJSON"));
+            JSONArray sensorJSONArray = new JSONArray((String) getIntent().getSerializableExtra("SensorJSON"));
+            JSONObject locationJSON = new JSONObject();
+            JSONObject sensorJSON = new JSONObject();
+
+            locationJSON.put("locations", locationJSONArray);
+            sensorJSON.put("sensors", sensorJSONArray);
+            mLessonJSONArray.put(locationJSON);
+            mLessonJSONArray.put(sensorJSON);
+            mLessonJSON.put("lesson", mLessonJSONArray);
         } catch (JSONException e) {
             Log.e("LessonEndActivity", "Exception when creating JSON array: " + e);
         }
@@ -137,6 +146,7 @@ public class LessonEndActivity extends AppCompatActivity {
 
                 // Adding file data to http body
                 entity.addPart("video", new FileBody(sourceFile));
+                entity.addPart("JSON", new StringBody(mLessonJSON.toString(1)));
 
                 mTotalSize = entity.getContentLength();
                 httppost.setEntity(entity);
@@ -187,7 +197,9 @@ public class LessonEndActivity extends AppCompatActivity {
                             mBtnUpload.setVisibility(View.INVISIBLE);
                             mProgressBar.setVisibility(View.INVISIBLE);
                             mTxtPercentage.setVisibility(View.INVISIBLE);
-                            mVideoFile.delete();
+                            if (mVideoFile.delete()){
+                                Log.i("LessonEndActivity", "Video file successfully deleted");
+                            }
                         }
                     }
                 });

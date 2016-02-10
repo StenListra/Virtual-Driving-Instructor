@@ -22,6 +22,7 @@ public class LocationHandler implements android.location.LocationListener {
     final private long mStartTime = System.currentTimeMillis();
     public List<Location> mLocations;
     public JSONArray mLocationsJSON;
+    private long mIndex = 0;
 
     public LocationHandler(Context context){
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
@@ -78,7 +79,9 @@ public class LocationHandler implements android.location.LocationListener {
         Long currTime = System.currentTimeMillis();
         String jsonString = "{\"longitude\":\"" + longitude + "\",\"latitude\":\"" + latitude + "\",\"speed\":\"" + speed + "\",\"time\":\"" + (currTime - mStartTime) + "\"}";
         try{
-            JSONObject locationData = new JSONObject(jsonString);
+            JSONObject locationData = new JSONObject();
+            locationData.put("location" + mIndex, new JSONObject(jsonString));
+            mIndex++;
             mLocationsJSON.put(locationData);
         }
         catch (Exception e){
