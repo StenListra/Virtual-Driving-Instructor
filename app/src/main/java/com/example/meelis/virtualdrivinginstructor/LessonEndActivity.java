@@ -17,7 +17,7 @@ import android.widget.TextView;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.client.HttpClient;
 import org.apache.http.entity.mime.content.StringBody;
@@ -146,7 +146,7 @@ public class LessonEndActivity extends AppCompatActivity {
 
                 // Adding file data to http body
                 entity.addPart("video", new FileBody(sourceFile));
-                entity.addPart("JSON", new StringBody(mLessonJSON.toString(1)));
+                entity.addPart("JSON", new StringBody(mLessonJSON.toString(1),ContentType.APPLICATION_JSON));
 
                 mTotalSize = entity.getContentLength();
                 httppost.setEntity(entity);

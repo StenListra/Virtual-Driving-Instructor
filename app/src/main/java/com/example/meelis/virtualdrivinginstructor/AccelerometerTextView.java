@@ -25,7 +25,6 @@ public class AccelerometerTextView extends LinearLayout implements android.hardw
     private float[] mCalibrationValues = new float[3];
     private TextView mTopTextView, mMiddleTextView, mBottomTextView;
     public JSONArray mAccelerometerJSON;
-    private long mIndex = 0;
 
     public AccelerometerTextView(Context context){
         super(context);
@@ -85,9 +84,7 @@ public class AccelerometerTextView extends LinearLayout implements android.hardw
                 float z = event.values[2] - mCalibrationValues[2];
                 String jsonString = "{\"x\":\"" + x + "\",\"y\":\"" + y + "\",\"z\":\"" + z + "\",\"time\":\"" + (currTime - mStartTime) + "\"}";
                 try{
-                    JSONObject accelerometerData = new JSONObject();
-                    accelerometerData.put("sensor" + mIndex, new JSONObject(jsonString));
-                    mIndex++;
+                    JSONObject accelerometerData = new JSONObject(jsonString);
                     mAccelerometerJSON.put(accelerometerData);
                 }
                 catch (Exception e){
