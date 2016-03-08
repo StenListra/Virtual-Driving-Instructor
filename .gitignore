@@ -6,4 +6,5 @@
 /build
 /captures
 /libstreaming
-/server
+/server/driving-instructor/*
+!/server/driving-instructor/app.js
