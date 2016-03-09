@@ -8,3 +8,4 @@
 /libstreaming
 /server/driving-instructor/*
 !/server/driving-instructor/app.js
+!/server/driving-instructor/public

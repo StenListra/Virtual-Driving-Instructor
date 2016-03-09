@@ -47,9 +47,9 @@ var lessonSchema = mongoose.Schema({
 });
 
 var Lesson = mongoose.model('Lesson',lessonSchema);
-
+var currentLesson = new Lesson();
 var upload = multer({storage:storage});
-
+var video;
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -61,8 +61,18 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/testPage', function(req, res){
+	var gridfs = app.get('gridfs');
 	console.log("upload page accessed");
+	gridfs.exist({_id : currentLesson.lesson}, function(err, found){
+		if(err) console.error(err);
+		found ? console.log("File: exists" + _id) : console.log("File does not exist");
+	}
 	res.sendFile(__dirname + "/" + "public/testPage.html");
+});
+
+app.get('/videoTest', function(req, res){
+	console.log("video test page accessed");
+	res.sendFile(__dirname + "/" + "public/videoTest.html");
 });
 
 app.post('/upload', upload.single('video'), function (req, res) {
@@ -79,7 +89,6 @@ app.post('/upload', upload.single('video'), function (req, res) {
 	
 	writestream.on('close', function (file) {
 		res.send('Thank you for uploading!');
-		var currentLesson = new Lesson();
 		
 		currentLesson.lesson = file._id;
 
