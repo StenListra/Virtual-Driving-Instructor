@@ -64,7 +64,10 @@ public class LessonMapFragment extends Fragment {
             LatLng marker = new LatLng(location.getLatitude(), location.getLongitude());
             markerList.add(marker);
         }
-        if (markerList.size() > 1) {
+        if (markerList.size() == 1){
+            mGoogleMap.addMarker(new MarkerOptions().position(markerList.get(0)));
+        }
+        else if (markerList.size() > 1) {
             PolylineOptions lineOptions = new PolylineOptions().addAll(markerList);
             mGoogleMap.addMarker(new MarkerOptions().position(markerList.get(0)));
             mGoogleMap.addMarker(new MarkerOptions().position(markerList.get(markerList.size() - 1)));

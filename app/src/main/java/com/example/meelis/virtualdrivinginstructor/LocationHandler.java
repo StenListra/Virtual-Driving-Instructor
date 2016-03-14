@@ -34,10 +34,6 @@ public class LocationHandler implements android.location.LocationListener {
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
         try{
             mProvider = mLocationManager.getBestProvider(criteria, true);
-            Location defaultLocation = mLocationManager.getLastKnownLocation(mProvider);
-            if (defaultLocation != null){
-                writeLocationToFile(defaultLocation);
-            }
             mLocationManager.requestLocationUpdates(mProvider, 0, 0, this);
         }
         catch (SecurityException e){
