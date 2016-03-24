@@ -61,7 +61,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(__dirname + '/public/videos'));
 
 app.get('/videoTest', function(req, res){
 	var gridfs = app.get('gridfs');
@@ -94,7 +93,6 @@ app.get('/videoTest', function(req, res){
 			});
 		}
 	})
-	//res.sendFile(__dirname + "/" + "public/videoTest.html");
 });
 
 app.post('/upload', upload.single('video'), function (req, res) {
