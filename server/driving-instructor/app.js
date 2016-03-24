@@ -8,6 +8,7 @@ var multer = require('multer');
 var mongoose = require('mongoose');
 var grid = require('gridfs-stream');
 var fs = require('fs');
+var jsdom = require('jsdom');
 
 var app = express();
 var storage = multer.diskStorage({
@@ -43,7 +44,8 @@ var lessonSchema = mongoose.Schema({
 	sensors: [{x:Number,
 			   y:Number,
 			   z:Number,
-			   time:Number}]
+			   time:Number,
+			   notable:Boolean}]
 });
 
 var Lesson = mongoose.model('Lesson',lessonSchema);
@@ -59,20 +61,40 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-app.get('/testPage', function(req, res){
-	var gridfs = app.get('gridfs');
-	console.log("upload page accessed");
-	gridfs.exist({_id : currentLesson.lesson}, function(err, found){
-		if(err) console.error(err);
-		found ? console.log("File: exists" + _id) : console.log("File does not exist");
-	}
-	res.sendFile(__dirname + "/" + "public/testPage.html");
-});
+app.use(express.static(__dirname + '/public/videos'));
 
 app.get('/videoTest', function(req, res){
+	var gridfs = app.get('gridfs');
+	var id = currentLesson.lesson;
+	var fileLocation = './public/videos/video' + id + '.mp4';
 	console.log("video test page accessed");
-	res.sendFile(__dirname + "/" + "public/videoTest.html");
+	gridfs.exist({_id : id}, function(err, found){
+		if(err) console.error(err);
+		if(found){
+			console.log('file found in database');
+			var fs_writestream = fs.createWriteStream(fileLocation);
+			var readstream = gridfs.createReadStream({
+				_id : id
+			});
+			readstream.pipe(fs_writestream);
+			fs_writestream.on('close', function () {
+				console.log('file has been written fully!');
+				jsdom.env({
+					html:fs.readFileSync("./public/videoTest.html", "utf-8"),
+					scripts: ['https://code.jquery.com/jquery-2.2.1.js'],
+					done: function (err, window) {
+					if(err) console.error(err);
+					var $ = window.jQuery;
+					var $body = $('body');
+					var $source = $body.find('source');
+					$source.attr('src', '/videos/video' + id + '.mp4');
+					res.send(window.document.documentElement.outerHTML);
+				}
+				});
+			});
+		}
+	})
+	//res.sendFile(__dirname + "/" + "public/videoTest.html");
 });
 
 app.post('/upload', upload.single('video'), function (req, res) {
@@ -81,15 +103,16 @@ app.post('/upload', upload.single('video'), function (req, res) {
 	var gridfs = app.get('gridfs');
 	
 	var writestream = gridfs.createWriteStream({
-		filename:req.file.fieldname,
+		filename:'video-' + Date.now() + '.mp4',
 		mode:'w',
-		content_type:req.file.mimetype
+		content_type:'video/mp4'
 	});
 	fs.createReadStream(req.file.path).pipe(writestream);
 	
 	writestream.on('close', function (file) {
 		res.send('Thank you for uploading!');
-		
+		console.log(sensors);
+		console.log(locations);
 		currentLesson.lesson = file._id;
 
   		for(var i = 0; i<locations.length; i++){
@@ -103,7 +126,8 @@ app.post('/upload', upload.single('video'), function (req, res) {
 			currentLesson.sensors.push({x: sensors[i].x,
 										y: sensors[i].y,
 										z: sensors[i].z,
-										time: sensors[i].time});
+										time: sensors[i].time,
+										notable: sensors[i].notable});
 		}
 		
 		currentLesson.save(function (err) {

@@ -20,6 +20,7 @@ public class AccelerometerTextView extends LinearLayout implements android.hardw
     private SensorManager mManager;
     private Sensor mAccelerometer;
     private long mLastUpdate = 0;
+    private float mComparisonValueX, mComparisonValueY, mComparisonValueZ = 0;
     final private long mStartTime = System.currentTimeMillis();
     private boolean mIsCalibrated = false;
     private float[] mCalibrationValues = new float[3];
@@ -70,7 +71,6 @@ public class AccelerometerTextView extends LinearLayout implements android.hardw
     public void onSensorChanged (SensorEvent event){
         Sensor sensor = event.sensor;
 
-
         if (sensor.getType() == Sensor.TYPE_ACCELEROMETER){
             if (!mIsCalibrated){
                 System.arraycopy(event.values, 0, mCalibrationValues, 0, 3);
@@ -78,11 +78,18 @@ public class AccelerometerTextView extends LinearLayout implements android.hardw
             }
             long currTime = System.currentTimeMillis();
             if (currTime - mLastUpdate > 100){
+                boolean notable = false;
                 mLastUpdate = currTime;
                 float x = event.values[0] - mCalibrationValues[0];
                 float y = event.values[1] - mCalibrationValues[1];
                 float z = event.values[2] - mCalibrationValues[2];
-                String jsonString = "{\"x\":\"" + x + "\",\"y\":\"" + y + "\",\"z\":\"" + z + "\",\"time\":\"" + (currTime - mStartTime) + "\"}";
+                if (Math.abs(x - mComparisonValueX) > 4.0 || Math.abs(y - mComparisonValueY) > 4.0 || Math.abs(z - mComparisonValueZ) > 4.0) {
+                    notable = true;
+                }
+                mComparisonValueX = x;
+                mComparisonValueY = y;
+                mComparisonValueZ = z;
+                String jsonString = "{\"x\":\"" + x + "\",\"y\":\"" + y + "\",\"z\":\"" + z + "\",\"time\":\"" + (currTime - mStartTime) + "\",\"notable\":\"" + notable + "\"}";
                 try{
                     JSONObject accelerometerData = new JSONObject(jsonString);
                     mAccelerometerJSON.put(accelerometerData);
