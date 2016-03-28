@@ -120,7 +120,7 @@ app.get('/video', function(req, res){
 						if(err) console.error(err);
 						if(file){
 							console.log(file.filename);
-							$buttons.find('p').after('<button type="button" class="btn btn-default">' + file.filename + '</button><br />');
+							$buttons.after('<p><button type="button" class="btn btn-default">' + file.filename + '</button></p>');
 							console.log($buttons.html());
 							if(index === array.length - 1){
 								res.send(window.document.documentElement.outerHTML);
