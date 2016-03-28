@@ -9,6 +9,7 @@ var mongoose = require('mongoose');
 var grid = require('gridfs-stream');
 var fs = require('fs');
 var jsdom = require('jsdom');
+var jq = 'https://code.jquery.com/jquery-2.2.1.js';
 
 var app = express();
 var storage = multer.diskStorage({
@@ -91,8 +92,45 @@ app.get('/videoTest', function(req, res){
 				}
 				});
 			});
-		}
-	})
+		};
+	});
+});
+
+app.get('/video', function(req, res){
+	var gridfs = app.get('gridfs');
+	var HTMLString = '';
+	console.log('video page accessed');
+	
+	Lesson.find({}, function(err, lessons){
+		if (err) console.error(err);
+		lessons.forEach(function(lesson){
+			console.log(lesson.lesson);
+		});
+		
+		jsdom.env({
+			html:fs.readFileSync("./public/videoList.html", "utf-8"),
+			scripts: ['https://code.jquery.com/jquery-2.2.1.js'],
+			done: function (err, window) {
+				if(err) console.error(err);
+				var $ = window.jQuery;
+				var $buttons = $('body').find('.buttons');
+		
+				lessons.forEach(function(lesson, index, array){
+					gridfs.files.findOne({_id : lesson.lesson}, function(err, file){
+						if(err) console.error(err);
+						if(file){
+							console.log(file.filename);
+							$buttons.find('p').after('<button type="button" class="btn btn-default">' + file.filename + '</button><br />');
+							console.log($buttons.html());
+							if(index === array.length - 1){
+								res.send(window.document.documentElement.outerHTML);
+							}
+						};
+					});
+				});
+			}
+		});
+	});
 });
 
 app.post('/upload', upload.single('video'), function (req, res) {
@@ -101,7 +139,7 @@ app.post('/upload', upload.single('video'), function (req, res) {
 	var gridfs = app.get('gridfs');
 	
 	var writestream = gridfs.createWriteStream({
-		filename:'video-' + Date.now() + '.mp4',
+		filename: convertDate() + '.mp4',
 		mode:'w',
 		content_type:'video/mp4'
 	});
@@ -154,5 +192,10 @@ app.use(function(err, req, res, next) {
     error: err
   });
 });
+
+function convertDate(){
+	var d = new Date();
+	return d.toString();
+}
 
 module.exports = app;
