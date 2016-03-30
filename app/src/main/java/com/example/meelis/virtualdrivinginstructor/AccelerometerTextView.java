@@ -83,6 +83,9 @@ public class AccelerometerTextView extends LinearLayout implements android.hardw
                 float x = event.values[0] - mCalibrationValues[0];
                 float y = event.values[1] - mCalibrationValues[1];
                 float z = event.values[2] - mCalibrationValues[2];
+                x = (float)Math.round(x * 100f) / 100f;
+                y = (float)Math.round(y * 100f) / 100f;
+                z = (float)Math.round(z * 100f) / 100f;
                 if (Math.abs(x - mComparisonValueX) > 4.0 || Math.abs(y - mComparisonValueY) > 4.0 || Math.abs(z - mComparisonValueZ) > 4.0) {
                     notable = true;
                 }

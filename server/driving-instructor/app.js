@@ -38,6 +38,7 @@ app.set('mongoose', mongoose);
 
 var lessonSchema = mongoose.Schema({
 	lesson: mongoose.Schema.Types.ObjectId,
+	subtitles: mongoose.Schema.Types.ObjectId,
 	locations: [{longitude:Number,
 				 latitude:Number,
 				 speed:Number,
@@ -63,50 +64,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/videoTest', function(req, res){
-	var gridfs = app.get('gridfs');
-	var id = currentLesson.lesson;
-	var fileLocation = './public/videos/video' + id + '.mp4';
-	console.log("video test page accessed");
-	gridfs.exist({_id : id}, function(err, found){
-		if(err) console.error(err);
-		if(found){
-			console.log('file found in database');
-			var fs_writestream = fs.createWriteStream(fileLocation);
-			var readstream = gridfs.createReadStream({
-				_id : id
-			});
-			readstream.pipe(fs_writestream);
-			fs_writestream.on('close', function () {
-				console.log('file has been written fully!');
-				jsdom.env({
-					html:fs.readFileSync("./public/videoTest.html", "utf-8"),
-					scripts: ['https://code.jquery.com/jquery-2.2.1.js'],
-					done: function (err, window) {
-					if(err) console.error(err);
-					var $ = window.jQuery;
-					var $body = $('body');
-					var $source = $body.find('source');
-					$source.attr('src', '/videos/video' + id + '.mp4');
-					res.send(window.document.documentElement.outerHTML);
-				}
-				});
-			});
-		};
-	});
-});
-
 app.get('/video', function(req, res){
 	var gridfs = app.get('gridfs');
-	var HTMLString = '';
 	console.log('video page accessed');
 	
 	Lesson.find({}, function(err, lessons){
 		if (err) console.error(err);
-		lessons.forEach(function(lesson){
-			console.log(lesson.lesson);
-		});
-		
 		jsdom.env({
 			html:fs.readFileSync("./public/videoList.html", "utf-8"),
 			scripts: ['https://code.jquery.com/jquery-2.2.1.js'],
@@ -119,9 +82,7 @@ app.get('/video', function(req, res){
 					gridfs.files.findOne({_id : lesson.lesson}, function(err, file){
 						if(err) console.error(err);
 						if(file){
-							console.log(file.filename);
-							$buttons.after('<p><button type="button" class="btn btn-default">' + file.filename + '</button></p>');
-							console.log($buttons.html());
+							$buttons.after('<p><button type="submit" class="btn btn-default" formaction="/video/' + lesson.lesson + '">' + file.filename + '</button></p>');
 							if(index === array.length - 1){
 								res.send(window.document.documentElement.outerHTML);
 							}
@@ -133,19 +94,94 @@ app.get('/video', function(req, res){
 	});
 });
 
+app.param('lesson', function(req, res, next, value){
+	console.log(value);
+	next();
+});
+
+app.get('/video/:lesson', function(req, res) {
+	var gridfs = app.get('gridfs');
+	var id = req.params.lesson;
+	var fileLocation = './public/videos/video' + id + '.mp4';
+	var subtitleLocation = './public/subtitles/' + id + '.vtt';
+	
+	fs.exists(fileLocation, function(exists){
+		if(exists){
+			console.log('file found on file system');
+			jsdom.env({
+				html:fs.readFileSync("./public/videoTest.html", "utf-8"),
+				scripts: ['https://code.jquery.com/jquery-2.2.1.js'],
+				done: function (err, window) {
+					if(err) console.error(err);
+					var $ = window.jQuery;
+					var $body = $('body');
+					var $source = $body.find('source');
+					$source.attr('src', '/videos/video' + id + '.mp4');
+					$source.after('<br /><track kind="captions" src="/subtitles/' + id + '.vtt" srclang="en" label="English" default>');
+					res.send(window.document.documentElement.outerHTML);
+				}
+			});
+		}
+		else{
+			gridfs.exist({_id : id}, function(err, found){
+				if(err) console.error(err);
+				if(found){
+					console.log('file found in database');
+					var fs_writestream = fs.createWriteStream(fileLocation);
+					var readstream = gridfs.createReadStream({
+						_id : id
+					});
+					var subtitle_writestream = fs.createWriteStream(subtitleLocation);
+					var subtitle_readstream = gridfs.createReadStream({
+						filename : id + '.vtt'
+					});
+					
+					readstream.pipe(fs_writestream);
+					fs_writestream.on('close', function () {
+						console.log('video file has been written fully!');
+						subtitle_readstream.pipe(subtitle_writestream);
+						subtitle_writestream.on('close', function () {
+							console.log('subtitle file has been written fully!');
+							jsdom.env({
+							html:fs.readFileSync("./public/videoTest.html", "utf-8"),
+							scripts: ['https://code.jquery.com/jquery-2.2.1.js'],
+							done: function (err, window) {
+								if(err) console.error(err);
+								var $ = window.jQuery;
+								var $body = $('body');
+								var $source = $body.find('source');
+								$source.attr('src', '/videos/video' + id + '.mp4');
+								$source.after('<track kind="captions" src="/subtitles/' + id + '.vtt" srclang="en" label="English" default>');
+								res.send(window.document.documentElement.outerHTML);
+								}
+							});
+						});
+					});
+				};
+			});
+		}
+	});
+});
+
 app.post('/upload', upload.single('video'), function (req, res) {
 	var locations = JSON.parse(req.body.JSON).lesson[0].locations;
 	var sensors = JSON.parse(req.body.JSON).lesson[1].sensors;
 	var gridfs = app.get('gridfs');
+	var subtitleLocation = './uploads/temp.vtt';
 	
 	var writestream = gridfs.createWriteStream({
 		filename: convertDate() + '.mp4',
 		mode:'w',
 		content_type:'video/mp4'
 	});
+	var fs_writestream = fs.createWriteStream(subtitleLocation);
+	fs_writestream.once('open', function(fd){
+		fs_writestream.write('WEBVTT\n\n\n');
+	});
 	fs.createReadStream(req.file.path).pipe(writestream);
 	
 	writestream.on('close', function (file) {
+		var subtitleOffset = sensors[0].time;
 		res.send('Thank you for uploading!');
 		console.log(sensors);
 		console.log(locations);
@@ -164,16 +200,39 @@ app.post('/upload', upload.single('video'), function (req, res) {
 										z: sensors[i].z,
 										time: sensors[i].time,
 										notable: sensors[i].notable});
+			if (i<(sensors.length-1)){
+				fs_writestream.write(convertTimestamp(sensors[i].time - subtitleOffset) + ' --> ' + convertTimestamp(sensors[i+1].time - subtitleOffset) + '\n');
+				fs_writestream.write('x: ' + sensors[i].x + ' y: ' + sensors[i].y + ' z: ' + sensors[i].z + '\n');
+			}
+			else{
+				fs_writestream.write(convertTimestamp(sensors[i].time - subtitleOffset) + ' --> 99:99:99.999\n');
+				fs_writestream.write('x: ' + sensors[i].x + ' y: ' + sensors[i].y + ' z: ' + sensors[i].z);
+				fs_writestream.end();
+			}
 		}
 		
-		currentLesson.save(function (err) {
-			if (err) console.error(err);
+		var subtitleWritestream = gridfs.createWriteStream({
+			filename: file._id + '.vtt',
+			mode:'w',
+			content_type:'text/vtt'
 		});
+		fs.createReadStream(subtitleLocation).pipe(subtitleWritestream);
+		subtitleWritestream.on('close', function(file) {
+			currentLesson.subtitles = file._id;
+			
+			currentLesson.save(function (err) {
+				if (err) console.error(err);
+			});
 		
-        fs.unlink(req.file.path, function (err) {
-          if (err) console.error("Error: " + err);
-          console.log('successfully deleted : '+ req.file.path );
-        });
+			fs.unlink(req.file.path, function (err) {
+				if (err) console.error(err);
+				console.log('successfully deleted : '+ req.file.path);
+			});
+			fs.unlink(subtitleLocation, function(err) {
+				if (err) console.error(err);
+				console.log('successfully deleted : ' + subtitleLocation);
+			});
+		});
     });
 });
 
@@ -196,6 +255,23 @@ app.use(function(err, req, res, next) {
 function convertDate(){
 	var d = new Date();
 	return d.toString();
+}
+
+function convertTimestamp(milliseconds){
+	var hours = Math.floor((milliseconds / (1000*60*60)) % 24);
+	var minutes = Math.floor((milliseconds / (1000*60)) % 60);
+	var seconds = Math.floor((milliseconds / 1000) % 60);
+	var ms = milliseconds % 1000;
+	if (hours < 10) hours = '0' + hours;
+	if (minutes < 10) minutes = '0' + minutes;
+	if (seconds < 10) seconds = '0' + seconds;
+	if (ms < 100 && ms > 10){
+		ms = '0' + ms;
+	}
+	else if (ms < 10){
+		ms = '00' + ms;
+	}
+	return hours + ':' + minutes + ':' + seconds + '.' + ms;
 }
 
 module.exports = app;
