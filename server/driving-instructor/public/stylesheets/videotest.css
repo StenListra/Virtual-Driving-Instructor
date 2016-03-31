@@ -1,4 +1,7 @@
 @charset "UTF-8";
+.video-js{
+	max-width: 100%;
+}
 .video-js .vjs-big-play-button:before, .video-js .vjs-control:before, .video-js .vjs-modal-dialog, .vjs-modal-dialog .vjs-modal-dialog-content {
   position: absolute;
   top: 0;
@@ -995,11 +998,8 @@ body.vjs-full-window {
   display: block; }
 
 video::-webkit-media-text-track-display {
-  -moz-transform: translateY(-3em), rotate(90deg);
-  -ms-transform: translateY(-3em) rotate(90deg);
-  -o-transform: translateY(-3em) rotate(90deg);
-  -webkit-transform: translateY(-3em) rotate(90deg);
-  transform: translateY(-3em) rotate(90deg); }
+	
+}
 
 .video-js.vjs-user-inactive.vjs-playing video::-webkit-media-text-track-display {
   -moz-transform: translateY(-1.5em);

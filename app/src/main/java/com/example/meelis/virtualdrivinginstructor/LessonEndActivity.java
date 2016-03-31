@@ -130,7 +130,7 @@ public class LessonEndActivity extends AppCompatActivity {
             String responseString;
 
             HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httppost = new HttpPost(Constants.UPLOAD_URL);
+            HttpPost httppost = new HttpPost(Constants.SERVER_URL + "upload");
 
             try {
                 ProgressMultiPartEntity entity = new ProgressMultiPartEntity(
