@@ -47,14 +47,16 @@ var lessonSchema = mongoose.Schema({
 			   y:Number,
 			   z:Number,
 			   time:Number,
-			   notable:Boolean}]
+			   notable:Boolean}],
+	comments: [{time:Number,
+				comment:String}]
 });
 
 var Lesson = mongoose.model('Lesson',lessonSchema);
 var currentLesson = new Lesson();
 var upload = multer({storage:storage});
 var video;
-// view engine setup
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
@@ -116,9 +118,24 @@ app.get('/video/:lesson', function(req, res) {
 					var $ = window.jQuery;
 					var $body = $('body');
 					var $source = $body.find('source');
-					$source.attr('src', '/videos/video' + id + '.mp4');
-					$source.after('<br /><track kind="captions" src="/subtitles/' + id + '.vtt" srclang="en" label="English" default>');
-					res.send(window.document.documentElement.outerHTML);
+					var $form = $body.find('form');
+					Lesson.findOne({'lesson' : id}, function(err, lesson){
+						if(err) console.error(err);
+						var comments = lesson.comments;
+						var $comments = $body.find('.col-sm-4');
+						if (comments.length === 0){
+							$comments.remove();
+						}
+						else{
+							for(i=0; i<comments.length; i++){
+								$comments.after('<div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title"></h3></div><div class="panel-body">' + comments[i].comment + '</div></div>');
+							}
+						}
+						$source.attr('src', '/videos/video' + id + '.mp4');
+						$source.after('<br /><track kind="captions" src="/subtitles/' + id + '.vtt" srclang="en" label="English" default>');
+						$form.attr('action', '/video/' + id);
+						res.send(window.document.documentElement.outerHTML);
+					});
 				}
 			});
 		}
@@ -150,16 +167,44 @@ app.get('/video/:lesson', function(req, res) {
 								var $ = window.jQuery;
 								var $body = $('body');
 								var $source = $body.find('source');
-								$source.attr('src', '/videos/video' + id + '.mp4');
-								$source.after('<track kind="captions" src="/subtitles/' + id + '.vtt" srclang="en" label="English" default>');
-								res.send(window.document.documentElement.outerHTML);
-								}
+								var $form = $body.find('form');
+								Lesson.findOne({'lesson' : id}, function(err, lesson){
+									var comments = lesson.comments;
+									var $comments = $body.find('.col-sm-4');
+									if (comments.length === 0){
+										$comments.remove();
+									}
+									else{
+										for(i=0; i<comments.length; i++){
+											$comments.after('<div class="panel panel-default"><div class="panel-heading"><h3 class="panel-title"></h3></div><div class="panel-body">' + comments[i].comment + '</div></div>');
+										}
+									}								
+									$source.attr('src', '/videos/video' + id + '.mp4');									
+									$source.after('<track kind="captions" src="/subtitles/' + id + '.vtt" srclang="en" label="English" default>');
+									$form.attr('action', '/video/' + id);
+									res.send(window.document.documentElement.outerHTML);
+								});
+							}
 							});
 						});
 					});
-				};
-			});
+			}});
 		}
+	});
+});
+
+app.post('/video/:lesson', function(req, res) {
+	console.log(req.body);
+	Lesson.findOne({'lesson' : req.params.lesson}, function(err, lesson){
+		if(err) console.error(err);
+		lesson.comments.push({
+			time:0,
+			comment:req.body.comment
+		});
+		lesson.save(function(err){
+			if(err) console.error(err);
+			res.redirect('/video/' + req.params.lesson);
+		});
 	});
 });
 
@@ -236,7 +281,6 @@ app.post('/upload', upload.single('video'), function (req, res) {
     });
 });
 
-// catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;

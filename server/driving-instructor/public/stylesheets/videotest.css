@@ -1,5 +1,18 @@
 @charset "UTF-8";
 .video-js{
+	margin:auto;
+	max-width: 100%;
+}
+
+form-control{
+	width: 480px;
+	max-width: 100%;
+}
+
+comments{
+	max-width: 100%;
+}
+.panel-default{
 	max-width: 100%;
 }
 .video-js .vjs-big-play-button:before, .video-js .vjs-control:before, .video-js .vjs-modal-dialog, .vjs-modal-dialog .vjs-modal-dialog-content {

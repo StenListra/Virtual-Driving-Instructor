@@ -35,7 +35,6 @@ public class LessonMapFragment extends Fragment {
     }
 
     public void setUpMap() {
-        // Do a null check to confirm that we have not already instantiated the map.
         if (mGoogleMap == null) {
             MapFragment fragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map);
             fragment.getMapAsync(new OnMapReadyCallback() {

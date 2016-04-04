@@ -102,21 +102,17 @@ public class LessonEndActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            // setting progress bar to zero
             mProgressBar.setProgress(0);
             super.onPreExecute();
         }
 
         @Override
         protected void onProgressUpdate(Integer... progress) {
-            // Making progress bar and upload percentage visible
             mProgressBar.setVisibility(View.VISIBLE);
             mTxtPercentage.setVisibility(View.VISIBLE);
 
-            // updating progress bar value
             mProgressBar.setProgress(progress[0]);
 
-            // updating percentage value
             mTxtPercentage.setText(String.format(getResources().getString(R.string.upload_progress), progress[0]));
         }
 
@@ -144,21 +140,18 @@ public class LessonEndActivity extends AppCompatActivity {
 
                 File sourceFile = mVideoFile;
 
-                // Adding file data to http body
                 entity.addPart("video", new FileBody(sourceFile));
                 entity.addPart("JSON", new StringBody(mLessonJSON.toString(1),ContentType.APPLICATION_JSON));
 
                 mTotalSize = entity.getContentLength();
                 httppost.setEntity(entity);
 
-                // Making server call
                 HttpResponse response = httpclient.execute(httppost);
                 HttpEntity r_entity = response.getEntity();
 
                 int statusCode = response.getStatusLine().getStatusCode();
                 if (statusCode == 200) {
                     mSuccessful = true;
-                    // Server response
                     responseString = EntityUtils.toString(r_entity);
                 } else {
                     responseString = "Error occurred! Http Status Code: "
@@ -180,7 +173,6 @@ public class LessonEndActivity extends AppCompatActivity {
             else{
                 Log.e("LessonEndActivity", "Response from server: " + result);
             }
-            // showing the server response in an alert dialog
             showAlert(result);
 
             super.onPostExecute(result);

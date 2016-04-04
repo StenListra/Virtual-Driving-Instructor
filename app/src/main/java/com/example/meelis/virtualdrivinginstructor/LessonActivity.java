@@ -154,7 +154,6 @@ public class LessonActivity extends AppCompatActivity
 
     private static Size chooseOptimalSize(Size[] choices, int width, int height)
     {
-        // Collect the supported resolutions that are at least as big as the preview Surface
         List<Size> bigEnough = new ArrayList<>();
         for (Size option : choices)
         {
@@ -164,7 +163,6 @@ public class LessonActivity extends AppCompatActivity
             }
         }
 
-        // Pick the smallest of those, assuming we found any
         if (bigEnough.size() > 0)
         {
             return Collections.min(bigEnough, new CompareSizesByArea());
@@ -217,7 +215,6 @@ public class LessonActivity extends AppCompatActivity
         int id = item.getItemId();
         if (id == android.R.id.home)
         {
-            // This ID represents the Home or Up button.
             NavUtils.navigateUpFromSameTask(this);
             return true;
         }
@@ -291,7 +288,6 @@ public class LessonActivity extends AppCompatActivity
             }
             String cameraId = manager.getCameraIdList()[0];
 
-            // Choose the sizes for camera preview and video recording
             CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
             StreamConfigurationMap map = characteristics
                     .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
@@ -465,11 +461,9 @@ public class LessonActivity extends AppCompatActivity
         try
         {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            // UI
             mStartButton.setText(getResources().getString(R.string.stop));
             mIsRecording = true;
 
-            // Start recording
             mStartTime = System.currentTimeMillis();
             mRecorder.start();
             mAccelerometerView.registerListener();
@@ -484,12 +478,9 @@ public class LessonActivity extends AppCompatActivity
     private void stopRecordingVideo()
     {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        // UI
         mIsRecording = false;
         mStartButton.setText(getResources().getString(R.string.record));
-        // Stop recording
         try {
-            // Abort all pending captures.
             mSession.abortCaptures();
         } catch (CameraAccessException e) {
             e.printStackTrace();
@@ -522,7 +513,6 @@ public class LessonActivity extends AppCompatActivity
         @Override
         public int compare(Size lhs, Size rhs)
         {
-            // We cast here to ensure the multiplications won't overflow
             return Long.signum((long) lhs.getWidth() * lhs.getHeight() -
                     (long) rhs.getWidth() * rhs.getHeight());
         }
@@ -530,14 +520,12 @@ public class LessonActivity extends AppCompatActivity
 
     private void hide()
     {
-        // Hide UI first
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null)
         {
             actionBar.hide();
         }
 
-        // Schedule a runnable to remove the status and navigation bar after a delay
         mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
     }
 
@@ -547,11 +535,6 @@ public class LessonActivity extends AppCompatActivity
         @Override
         public void run()
         {
-            // Delayed removal of status and navigation bar
-
-            // Note that some of these constants are new as of API 16 (Jelly Bean)
-            // and API 19 (KitKat). It is safe to use them, as they are inlined
-            // at compile-time and do nothing on earlier devices.
             mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
                     | View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -570,10 +553,6 @@ public class LessonActivity extends AppCompatActivity
         }
     };
 
-    /**
-     * Schedules a call to hide() in [delay] milliseconds, canceling any
-     * previously scheduled calls.
-     */
     private void delayedHide(int delayMillis)
     {
         mHideHandler.removeCallbacks(mHideRunnable);
